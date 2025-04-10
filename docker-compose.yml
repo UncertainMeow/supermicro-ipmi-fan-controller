@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  supermicro-fan-controller:
+    image: yourdockerhub/supermicro-fan-controller:latest
+    container_name: supermicro-fan-controller
+    restart: unless-stopped
+    environment:
+      - IPMI_HOST=192.168.1.100
+      - IPMI_USER=ADMIN
+      - IPMI_PASS=ADMIN
+      - FAN_MODE=manual:20
+      - FALLBACK_FAN_MODE=full
+      - CPU_TEMPERATURE_THRESHOLD=60
+      - CHECK_INTERVAL=30
+      - VERBOSE=true
