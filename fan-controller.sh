@@ -24,7 +24,13 @@ ipmi_cmd() {
 }
 
 get_max_cpu_temp() {
-  ipmi_cmd sensor | grep -i 'CPU' | grep -i 'Temp' | awk '{print $(NF-1)}' | sort -nr | head -n1
+  ipmi_cmd sensor \
+    | grep -i 'CPU' \
+    | grep -i 'Temp' \
+    | awk '{print $(NF-1)}' \
+    | grep -E '^[0-9]+$' \
+    | sort -nr \
+    | head -n1
 }
 
 set_fan_mode_raw() {
@@ -54,6 +60,13 @@ set_fan_mode_raw() {
 
 while true; do
   CURRENT_TEMP=$(get_max_cpu_temp)
+
+  if [ -z "$CURRENT_TEMP" ]; then
+    log "⚠️ Could not determine CPU temp (no valid numeric value found). Skipping fan logic this cycle."
+    sleep "$CHECK_INTERVAL"
+    continue
+  fi
+
   log "Current max CPU temp: ${CURRENT_TEMP}°C"
 
   if [ "$CURRENT_TEMP" -ge "$CPU_TEMPERATURE_THRESHOLD" ]; then
